@@ -41,7 +41,7 @@ public class EditUser extends AppCompatActivity {
     private TextView userTextView;
     private String strID;
     private String passwordString,nameString,surnameString,addressString, phoneString;
-    private static final String urlSTRING = "http://www.fourchokcodding.com/mos/edit/php_edit_user.php";
+    private static final String urlSTRING = "http://192.168.43.169/sittichok/edit/edit_user.php";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +75,7 @@ public class EditUser extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://www.fourchokcodding.com/mos/get/php_get_user.php";
+            String strURLuser = "http://192.168.43.169/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -137,7 +137,7 @@ public class EditUser extends AppCompatActivity {
         SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE,null);
         Cursor cursor = sqLiteDatabase
-                .rawQuery("SELECT * FROM userTABLE WHERE _id = " + "'"+ strID +"'", null);
+                .rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_USER +" WHERE _id = " + "'"+ strID +"'", null);
         cursor.moveToFirst();
         String[] resultStrings = new String[cursor.getColumnCount()];
         for (int i=0; i<cursor.getColumnCount(); i++) {

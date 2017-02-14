@@ -58,7 +58,7 @@ public class CheckmoneyActivity extends AppCompatActivity {
     private void blance() {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
-        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM userTABLE WHERE _id = " + "'" + strID + "'", null);
+        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_USER +" WHERE _id = " + "'" + strID + "'", null);
         objCursor.moveToFirst();
         String[] resultStrings = new String[objCursor.getColumnCount()];
         for (int i=0; i<objCursor.getColumnCount(); i++) {
@@ -94,7 +94,7 @@ public class CheckmoneyActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://www.fourchokcodding.com/mos/get/php_get_user.php";
+            String strURLuser = "http://192.168.43.169/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -158,6 +158,7 @@ public class CheckmoneyActivity extends AppCompatActivity {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_USER, null, null);
+        objSqLiteDatabase.close();
 
 
     }   // deleteUser

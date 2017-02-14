@@ -68,7 +68,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLtborderdetail = "http://www.fourchokcodding.com/mos/get/php_get_tborderdetail.php";
+            String strURLtborderdetail = "http://192.168.43.169/sittichok/get/get_tborderdetail.php";
             HttpPost objHttpPost = null;
             // 1 Create InputStream
             try {

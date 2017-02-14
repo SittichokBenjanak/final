@@ -510,7 +510,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     private void readAllData() {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null); // เปิดฐานข้อมูล Heyhey.db
-        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM ordertable", null); //ดึง Order ที่สั่งทั้งหมดจากฐานข้อมูล
+        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_ORDER, null); //ดึง Order ที่สั่งทั้งหมดจากฐานข้อมูล
         objCursor.moveToFirst();  // แล้วให้ไปอยู่ที่ Order แรก
         dateString = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Date)); // รับค่า เวลา
         nameString = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Name)); // รับค่า ชื่อ

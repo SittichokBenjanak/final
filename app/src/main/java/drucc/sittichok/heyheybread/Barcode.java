@@ -1,5 +1,6 @@
 package drucc.sittichok.heyheybread;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
@@ -36,7 +37,13 @@ public class Barcode extends AppCompatActivity {
 
         Text.setText(idBarcode);
     }
-
+    public void onBackPressed() {
+        Intent objIntent = new Intent(Barcode.this, HubActivity.class);
+        // ทำเสร็จแล้ว ให้ กลับไปหน้า HubActivity.class
+        objIntent.putExtra("ID", idString); //แล้วส่งค่า ID คืนไปที่หน้า HubActivity.class ด้วย
+        startActivity(objIntent);
+        finish();
+    }
     private void setBarcode(String strIdBarcode) {
 
         try {
