@@ -96,7 +96,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://www.fourchokcodding.com/mos/get/php_get_user.php";
+            String strURLuser = "http://192.168.43.169/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -165,7 +165,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         String strID = getIntent().getStringExtra("idUser");
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
-        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM userTABLE WHERE _id = " + "'" + strID + "'", null);
+        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_USER +" WHERE _id = " + "'" + strID + "'", null);
         objCursor.moveToFirst();
         String[] resultStrings = new String[objCursor.getColumnCount()];
         for (int i=0; i<objCursor.getColumnCount(); i++) {
@@ -190,7 +190,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             try {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder builder = new Request.Builder();
-                Request request = builder.url("http://www.fourchokcodding.com/mos/get/php_get_last_orderdetail.php").build();
+                Request request = builder.url("http://192.168.43.169/sittichok/get/get_last_orderdetail.php").build();
                 Response response = okHttpClient.newCall(request).execute();
                 return response.body().string();
             } catch (Exception e) {
@@ -206,6 +206,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 JSONArray jsonArray = new JSONArray(strJSON);
                 JSONObject jsonObject = jsonArray.getJSONObject(0);
                 strOrderNo = jsonObject.getString("OrderNo");
+                Log.d("hey", "ค่าของ orderล่าสุด ==> " + strOrderNo);
             } catch (Exception e) {
                 Log.d("12April", "onPost ==> " + e.toString());
             }
@@ -246,7 +247,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 orderDetailAnInt += 1;
                 //Log.d("12April", "OrderDetailID(" + (i + 1) +")" + orderDetailAnInt);
                 String strOrderDetail = Integer.toString(orderDetailAnInt);
-                String strProductID = findProductID(strBread);
+                String strProductID = findProductID(strBread);  // รหัส ขนมปัง แต่ เอาชื่อแทน
                 //Log.d("12April", strBread + " มี id = " + strProductID);
                 int intAmount = Integer.parseInt(strItem);
                 int intPrice = Integer.parseInt(strPrice);
@@ -346,7 +347,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             nameValuePairs.add(new BasicNameValuePair("Amount",strCurrentStock));
 
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://www.fourchokcodding.com/mos/edit/php_edit_stock.php");
+            HttpPost httpPost = new HttpPost("http://192.168.43.169/sittichok/edit/edit_stock.php");
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             httpClient.execute(httpPost);
 
@@ -391,7 +392,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .add("Balance", Balance)
                 .build();
         Request.Builder builder = new Request.Builder();
-        Request request = builder.url("http://www.fourchokcodding.com/mos/edit/php_edit_money.php")
+        Request request = builder.url("http://192.168.43.169/sittichok/edit/edit_money.php")
                 .post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -426,7 +427,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .add("PriceTotal", strpriceTotal)
                 .build();
         Request.Builder builder = new Request.Builder();
-        Request request = builder.url("http://www.fourchokcodding.com/mos/add/php_add_tborderdetail.php")
+        Request request = builder.url("http://192.168.43.169/sittichok/add/add_tborderdetail.php")
                 .post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -474,7 +475,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             nameValuePairs.add(new BasicNameValuePair("Status",strStatus));
             nameValuePairs.add(new BasicNameValuePair("Barcode",strBarcode));
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://www.fourchokcodding.com/mos/add/php_add_tborder.php");
+            HttpPost httpPost = new HttpPost("http://192.168.43.169/sittichok/add/add_tborder.php");
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,"UTF-8"));
             httpClient.execute(httpPost);
             Log.i("11April", "Update Finish");
@@ -509,7 +510,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     private void readAllData() {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null); // เปิดฐานข้อมูล Heyhey.db
-        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM orderTABLE", null); //ดึง Order ที่สั่งทั้งหมดจากฐานข้อมูล
+        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM ordertable", null); //ดึง Order ที่สั่งทั้งหมดจากฐานข้อมูล
         objCursor.moveToFirst();  // แล้วให้ไปอยู่ที่ Order แรก
         dateString = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Date)); // รับค่า เวลา
         nameString = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Name)); // รับค่า ชื่อ

@@ -16,7 +16,7 @@ public class ManageTABLE {
     private MyOpenHelper objMyOpenHelper;
     private SQLiteDatabase writeSqLiteDatabase, readSqLiteDatabase;
     // static ค่าคงที่ final ที่ไม่สามารถเปลี่ยนแปลงได้
-    public static final String TABLE_USER = "userTABLE";
+    public static final String TABLE_USER = "usertable";
     public static final String COLUMN_id = "_id";
     public static final String COLUMN_User = "User";
     public static final String COLUMN_Password = "Password";
@@ -26,14 +26,14 @@ public class ManageTABLE {
     public static final String COLUMN_Phone = "Phone";
     public static final String COLUMN_Balance = "Balance";
 
-    public static final String TABLE_BREAD = "breadTABLE";
+    public static final String TABLE_BREAD = "breadtable";
     public static final String COLUMN_Bread = "Bread";
     public static final String COLUMN_Price = "Price";
     public static final String COLUMN_Amount2 = "Amount";
     public static final String COLUMN_Image = "Image";
     public static final String COLUMN_Status = "Status";
 
-    public static final String TABLE_ORDER = "orderTABLE";
+    public static final String TABLE_ORDER = "ordertable";
     public static final String COLUMN_Date = "Date";
     public static final String COLUMN_Item = "Item";
 

@@ -35,13 +35,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // Bind Widget
         bindWidget();
-
         //Connected Database ทำให้สามารถเรียกใช้ เมดตอด ที่ อยู่ ใน ManageTABLE ได้
         objManageTABLE = new ManageTABLE(this);
-
         //Delete All SQLite
         deleteAllSQLite();
-
         //Synchronize JSON to SQLite
         synJSONtoSQLite();
     }   // OnCreate
@@ -70,35 +67,47 @@ public class MainActivity extends AppCompatActivity {
     }   // bindWidget
 
     public void clickLogin(View view) {
-        // Check Space เช็คว่า ถ้า ช่องที่กรอกข้อมูล อันใด อันหนึ่งว่าง ให้ โชว์ ข้อความ  "มีช่องว่าง","กรุณากรอกให้ครบ" ที่หน้า MainActivity.this
-        userString = userEditText.getText().toString().trim(); // รับค่าเป็น text แปลงเป็น String ,trim ตัดช่องว่าง
-        passwordString = passwordEditText.getText().toString().trim();
-        if (userString.equals("") || passwordString.equals("")) {  //อีคั่ว
-            //มีช่องว่าง
-            MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-            objMyAlertDialog.errorDialog(MainActivity.this,"มีช่องว่าง","กรุณากรอกข้อมูลให้ครบ");
-        } else {
-            //ไม่มีช่องว่าง
-            checkUser();
+        try {
+            // Check Space เช็คว่า ถ้า ช่องที่กรอกข้อมูล อันใด อันหนึ่งว่าง ให้ โชว์ ข้อความ  "มีช่องว่าง","กรุณากรอกให้ครบ" ที่หน้า MainActivity.this
+            userString = userEditText.getText().toString().trim(); // รับค่าเป็น text แปลงเป็น String ,trim ตัดช่องว่าง
+            passwordString = passwordEditText.getText().toString().trim();
+            if (userString.equals("") || passwordString.equals("")) {  //อีคั่ว
+                //มีช่องว่าง
+                MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+                objMyAlertDialog.errorDialog(MainActivity.this,"มีช่องว่าง","กรุณากรอกข้อมูลให้ครบ");
+            } else {
+                //ไม่มีช่องว่าง
+                checkUser();
+            }
+
+        }catch (Exception e){
+            Log.d(TAG, "Login ==> " + e.toString());
         }
     }   // clickLogin
 
     private void checkUser() {
         try {
             String[] resultStrings = objManageTABLE.searchUser(userString);  //userString คือ ค่าที่รับมาจากลูกค้ากรอก
-            if (passwordString.equals(resultStrings[2])) {
-                // equals คือ = เปรียบเทียบ PasswordString ที่ลูกค้ากรอกมา ถ้า ตรงกับ Pass ที่อยู่ในฐานข้อมูล
-                Intent objIntent = new Intent(MainActivity.this, HubActivity.class);
-                objIntent.putExtra("ID", resultStrings[0]);
-                startActivity(objIntent);
-                finish();
-            } else {
+            if (resultStrings == null){
                 MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-                objMyAlertDialog.errorDialog(MainActivity.this,"รหัสผ่านผิด","กรุณากรอกรหัสผ่านใหม่");
+                objMyAlertDialog.errorDialog(MainActivity.this,"ชื่อผู้ใช้ไม่ถูกต้อง","ไม่มี "+ userString + " ในฐานข้อมูล" );
+            }else {
+                if (passwordString.equals(resultStrings[2])) {
+                    // equals คือ = เปรียบเทียบ PasswordString ที่ลูกค้ากรอกมา ถ้า ตรงกับ Pass ที่อยู่ในฐานข้อมูล
+                    Intent objIntent = new Intent(MainActivity.this, HubActivity.class);
+                    objIntent.putExtra("ID", resultStrings[0]);
+                    startActivity(objIntent);
+                    finish();
+                } else {
+                    MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+                    objMyAlertDialog.errorDialog(MainActivity.this,"รหัสผ่านผิด","กรุณากรอกรหัสผ่านใหม่");
+                }
+
             }
+
         } catch (Exception e) {
             MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-            objMyAlertDialog.errorDialog(MainActivity.this,"ชื่อผู้ใช้ไม่ถูกต้อง","ไม่มี "+ userString + " ในฐานข้อมูล" );
+            objMyAlertDialog.errorDialog(MainActivity.this,"ไม่ได้เชื่อมต่ออินเตอร์เน็ต","กรุณาเชื่อมต่อแล้วแล้วลองใหม่" );
         }
     }   // checkUser
 
@@ -109,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://www.fourchokcodding.com/mos/get/php_get_user.php";
+            String strURLuser = "http://192.168.43.169/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -139,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.d(TAG, "strJSON ==> " + e.toString());
             }
-
             //3. Update JSON String to SQLite
             try {
                 JSONArray objJsonArray = new JSONArray(strJSON);
@@ -166,11 +174,18 @@ public class MainActivity extends AppCompatActivity {
             }
             intTimes += 1;
         }   //while
+
     }   // synJSONtoSQLite
 
     public void clickNewRegister(View view) {
-        startActivity(new Intent(MainActivity.this,RegisterActivity.class));
-        finish();
+        try {
+            startActivity(new Intent(MainActivity.this,RegisterActivity.class));
+            finish();
+
+        } catch (Exception e) {
+            Log.d(TAG, "NewRegister ==> " + e.toString());
+        }
+
     }   // clickNewRegister
 
     private void deleteAllSQLite() {
@@ -178,6 +193,10 @@ public class MainActivity extends AppCompatActivity {
                 MODE_PRIVATE, null); // MODE_PRIVATE คือ ลบข้อมูลในตาราง แต่ไม่ลบตารางออก
         objSqLiteDatabase.delete(ManageTABLE.TABLE_USER, null, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_ORDER, null, null);
+        objSqLiteDatabase.delete(ManageTABLE.TABLE_BREAD, null, null);
+        objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER, null, null);
+        objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER_DETAIL, null, null);
+        objSqLiteDatabase.close();
 
     }   // deleteAllSQLite
 

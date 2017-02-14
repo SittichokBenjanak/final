@@ -76,6 +76,7 @@ public class showMenuActivity extends AppCompatActivity {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_ORDER, null, null);
+        objSqLiteDatabase.close();
     }   // deleteorder
 
     // Create Inner Class
@@ -85,7 +86,7 @@ public class showMenuActivity extends AppCompatActivity {
             try {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder builder = new Request.Builder();
-                Request request = builder.url("http://www.fourchokcodding.com/mos/get/php_get_bread.php").build();
+                Request request = builder.url("http://192.168.43.169/sittichok/get/get_bread.php").build();
                 Response response = okHttpClient.newCall(request).execute();
                 return response.body().string();
             } catch (Exception e) {
@@ -103,6 +104,8 @@ public class showMenuActivity extends AppCompatActivity {
                 SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                         MODE_PRIVATE, null);
                 sqLiteDatabase.delete(ManageTABLE.TABLE_BREAD, null, null);
+                sqLiteDatabase.close();
+
                 JSONArray jsonArray = new JSONArray(strJSON);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);

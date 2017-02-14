@@ -70,7 +70,7 @@ public class HubActivity extends AppCompatActivity implements View.OnClickListen
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLtborder = "http://www.fourchokcodding.com/mos/get/php_get_tborder.php";
+            String strURLtborder = "http://192.168.43.169/sittichok/get/get_tborder.php";
             HttpPost objHttpPost = null;
             // 1 Create InputStream
             try {
@@ -128,6 +128,7 @@ public class HubActivity extends AppCompatActivity implements View.OnClickListen
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER, null, null);
+        objSqLiteDatabase.close();
     }   // deleteOrder
 
     private void imageController() {

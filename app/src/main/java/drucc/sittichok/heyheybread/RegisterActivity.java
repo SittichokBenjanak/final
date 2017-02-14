@@ -72,31 +72,37 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void clickSave(View view) {
         //Check Space รับค่าที่ลูกค้ากรอกมาเช็คช่องว่าง ทุกอัน ที่ลูกค้า กรอกมา
-        userString = UserEditText.getText().toString().trim(); //trim คือตัดช่องว่างทิ้ง
-        passwordString = PasswordEditText.getText().toString().trim();
-        nameString = NameEditText.getText().toString().trim();
-        surnameString = SurnameEditText.getText().toString().trim();
-        addressString = AddressEditText.getText().toString().trim();
-        phoneString = PhonEditText.getText().toString().trim();
+        try {
+            userString = UserEditText.getText().toString().trim(); //trim คือตัดช่องว่างทิ้ง
+            passwordString = PasswordEditText.getText().toString().trim();
+            nameString = NameEditText.getText().toString().trim();
+            surnameString = SurnameEditText.getText().toString().trim();
+            addressString = AddressEditText.getText().toString().trim();
+            phoneString = PhonEditText.getText().toString().trim();
 
-        if (userString.equals("") || // ถ้ามี ช่องไหนว่าง ให้ โชว์ข้อความว่า "มีช่องว่าง", "กรุณากรอกให้ครบทุกช่อง"
-                passwordString.equals("") ||
-                nameString.equals("") ||
-                surnameString.equals("") ||   // equals อีคั่ว เหมือนเท่ากับ i="" ใช้เพราะเป็น String
-                addressString.equals("") ||
-                phoneString.equals("")) {
-            //Have Space  ถ้ามีช่องว่างให้ทำ
-            MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-            objMyAlertDialog.errorDialog(RegisterActivity.this, "มีช่องว่าง", "กรุณากรอกข้อมูลให้ครบ");
-        } else {
-            //No Space
-            if (checkUser()) {
+            if (userString.equals("") || // ถ้ามี ช่องไหนว่าง ให้ โชว์ข้อความว่า "มีช่องว่าง", "กรุณากรอกให้ครบทุกช่อง"
+                    passwordString.equals("") ||
+                    nameString.equals("") ||
+                    surnameString.equals("") ||   // equals อีคั่ว เหมือนเท่ากับ i="" ใช้เพราะเป็น String
+                    addressString.equals("") ||
+                    phoneString.equals("")) {
+                //Have Space  ถ้ามีช่องว่างให้ทำ
                 MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-                objMyAlertDialog.errorDialog(RegisterActivity.this,"ชื่อผู้ใช้นี้มีคนใช้แล้ว","กรุณาเปลี่ยนชื่อผู้ใช้ใหม่");
+                objMyAlertDialog.errorDialog(RegisterActivity.this, "มีช่องว่าง", "กรุณากรอกข้อมูลให้ครบ");
             } else {
-                confirmRegister();
-            }
-        } // if
+                //No Space
+                if (checkUser()) {
+                    MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+                    objMyAlertDialog.errorDialog(RegisterActivity.this,"ชื่อผู้ใช้นี้มีคนใช้แล้ว","กรุณาเปลี่ยนชื่อผู้ใช้ใหม่");
+                } else {
+                    confirmRegister();
+                }
+            } // if
+
+        } catch (Exception e) {
+
+        }
+
     }   //clickSave
 
     private void confirmRegister() {
@@ -129,7 +135,7 @@ public class RegisterActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy myPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(myPolicy);
         try {
-            String strURL = "http://www.fourchokcodding.com/mos/add/php_add_data.php";
+            String strURL = "http://192.168.43.169/sittichok/add/add_user.php";
             ArrayList<NameValuePair> objNameValuePairs = new ArrayList<NameValuePair>();
             objNameValuePairs.add(new BasicNameValuePair("isAdd","true"));
             objNameValuePairs.add(new BasicNameValuePair(ManageTABLE.COLUMN_User,userString));

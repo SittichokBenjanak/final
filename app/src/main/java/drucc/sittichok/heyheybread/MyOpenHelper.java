@@ -12,7 +12,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
     // Explicit
     public static final String DATABASE_NAME = "Heyhey.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String CREATE_TABLE_USER = "create table userTABLE (" +
+    private static final String CREATE_TABLE_USER = "create table usertable (" +
             "_id integer primary key, " +
             "User text," +
             "Password text," +
@@ -22,7 +22,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
             "Phone text," +
             "Balance text);";
 
-    private static final String CREATE_TABLE_BREAD = "create table breadTABLE (" +
+    private static final String CREATE_TABLE_BREAD = "create table breadtable (" +
             "_id integer primary key," +
             "Bread text," +
             "Price text," +
@@ -30,7 +30,7 @@ public class MyOpenHelper extends SQLiteOpenHelper{
             "Image text," +
             "Status text);";
 
-    private static final String CREATE_TABLE_ORDER = "create table orderTABLE (" +
+    private static final String CREATE_TABLE_ORDER = "create table ordertable (" +
             "_id integer primary key," +
             "Date text," +
             "Name text," +
