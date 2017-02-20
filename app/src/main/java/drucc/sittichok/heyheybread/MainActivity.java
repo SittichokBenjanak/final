@@ -1,5 +1,6 @@
 package drucc.sittichok.heyheybread;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -68,10 +69,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void clickLogin(View view) {
         try {
+
             // Check Space เช็คว่า ถ้า ช่องที่กรอกข้อมูล อันใด อันหนึ่งว่าง ให้ โชว์ ข้อความ  "มีช่องว่าง","กรุณากรอกให้ครบ" ที่หน้า MainActivity.this
             userString = userEditText.getText().toString().trim(); // รับค่าเป็น text แปลงเป็น String ,trim ตัดช่องว่าง
             passwordString = passwordEditText.getText().toString().trim();
             if (userString.equals("") || passwordString.equals("")) {  //อีคั่ว
+
                 //มีช่องว่าง
                 MyAlertDialog objMyAlertDialog = new MyAlertDialog();
                 objMyAlertDialog.errorDialog(MainActivity.this,"มีช่องว่าง","กรุณากรอกข้อมูลให้ครบ");
@@ -87,27 +90,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkUser() {
         try {
+
             String[] resultStrings = objManageTABLE.searchUser(userString);  //userString คือ ค่าที่รับมาจากลูกค้ากรอก
-            if (resultStrings == null){
-                MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-                objMyAlertDialog.errorDialog(MainActivity.this,"ชื่อผู้ใช้ไม่ถูกต้อง","ไม่มี "+ userString + " ในฐานข้อมูล" );
-            }else {
+
                 if (passwordString.equals(resultStrings[2])) {
                     // equals คือ = เปรียบเทียบ PasswordString ที่ลูกค้ากรอกมา ถ้า ตรงกับ Pass ที่อยู่ในฐานข้อมูล
+
                     Intent objIntent = new Intent(MainActivity.this, HubActivity.class);
                     objIntent.putExtra("ID", resultStrings[0]);
                     startActivity(objIntent);
                     finish();
                 } else {
+
                     MyAlertDialog objMyAlertDialog = new MyAlertDialog();
                     objMyAlertDialog.errorDialog(MainActivity.this,"รหัสผ่านผิด","กรุณากรอกรหัสผ่านใหม่");
                 }
 
-            }
 
         } catch (Exception e) {
             MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-            objMyAlertDialog.errorDialog(MainActivity.this,"ไม่ได้เชื่อมต่ออินเตอร์เน็ต","กรุณาเชื่อมต่อแล้วแล้วลองใหม่" );
+            objMyAlertDialog.errorDialog(MainActivity.this,"ชื่อผู้ใช้ไม่ถูกต้อง","ไม่มี "+ userString + " ในฐานข้อมูล" );
         }
     }   // checkUser
 
@@ -118,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://192.168.43.169/sittichok/get/get_user.php";
+            String strURLuser = "http://fourchokcodding.com/mos/android_get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -196,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         objSqLiteDatabase.delete(ManageTABLE.TABLE_BREAD, null, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER, null, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER_DETAIL, null, null);
-        objSqLiteDatabase.close();
+
 
     }   // deleteAllSQLite
 

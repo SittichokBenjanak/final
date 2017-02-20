@@ -55,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         LatLng sydney = new LatLng(13.604760, 100.614848);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("ร้านปังโชคดี สาขาศรีนครินทร์-ปากน้ำ").snippet("(เปิดบริการ 7:00 - 19:00 น.)"));
+        mMap.addMarker(new MarkerOptions().position(sydney).title("ร้านขนมปัง").snippet("(เปิดบริการ 7:00 - 19:00 น.)"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 //        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 

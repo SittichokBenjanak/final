@@ -46,19 +46,21 @@ import java.util.Random;
 
 public class ConfirmOrderActivity extends AppCompatActivity {
     // Explicit
-    private TextView dateTextView, nameTextView,statusTextView,
-            totalTextView,numberorderTextView;
-    private String dateString,nameString,surnameString;
+    private TextView dateTextView, nameTextView, statusTextView,
+            totalTextView, numberorderTextView;
+    private String dateString, nameString, surnameString;
     private ListView orderListView;
     private int totalAnInt = 0;
     private String strIDuser;
     private String strDate;
     private String strOrderNo;
     private int orderDetailAnInt = 0;
-    private String strOrderNumber ;
+    private String strOrderNumber;
     private String Balane;
     private String Barcode;
     private ManageTABLE objManageTABLE;
+    private int intAmount, intProductAmount, sumorder = 0;
+    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +84,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         findLastOrderNo();
     }   // Main Method
 
-    public void onBackPressed(){
+    public void onBackPressed() {
         Intent objIntent = new Intent(ConfirmOrderActivity.this, showMenuActivity.class);
         objIntent.putExtra("ID", strIDuser);
         startActivity(objIntent);
@@ -96,7 +98,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://192.168.43.169/sittichok/get/get_user.php";
+            String strURLuser = "http://fourchokcodding.com/mos/android_get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -114,7 +116,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             }
             //2. Create JSON String
             try {
-                BufferedReader objBufferedReader = new BufferedReader(new InputStreamReader(objInputStream,"UTF-8"));
+                BufferedReader objBufferedReader = new BufferedReader(new InputStreamReader(objInputStream, "UTF-8"));
                 StringBuilder objStringBuilder = new StringBuilder();
                 String strLine = null;
                 while ((strLine = objBufferedReader.readLine()) != null) {
@@ -129,7 +131,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             //3. Update JSON String to SQLite
             try {
                 JSONArray objJsonArray = new JSONArray(strJSON);
-                for (int i=0; i<objJsonArray.length();i++) {
+                for (int i = 0; i < objJsonArray.length(); i++) {
                     JSONObject object = objJsonArray.getJSONObject(i);
                     switch (intTimes) {
                         case 1: // userTABLE
@@ -165,32 +167,34 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         String strID = getIntent().getStringExtra("idUser");
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
-        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_USER +" WHERE _id = " + "'" + strID + "'", null);
+        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_USER + " WHERE _id = " + "'" + strID + "'", null);
         objCursor.moveToFirst();
         String[] resultStrings = new String[objCursor.getColumnCount()];
-        for (int i=0; i<objCursor.getColumnCount(); i++) {
+        for (int i = 0; i < objCursor.getColumnCount(); i++) {
             resultStrings[i] = objCursor.getString(i);
         }   //for
         Balane = resultStrings[7]; // รับค่า balance ยอดเงินของลูกค้า
         objCursor.close();
     }   // balance
+
     private void orderNumber() {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
         Cursor cursor = objSqLiteDatabase.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_TBORDER, null);
         cursor.moveToLast();
         strOrderNumber = cursor.getString(cursor.getColumnIndex(ManageTABLE.COLUMN_id));
-        int intOrderNumber = Integer.parseInt(strOrderNumber)+1;
+        int intOrderNumber = Integer.parseInt(strOrderNumber) + 1;
         strOrderNumber = Integer.toString(intOrderNumber);
         cursor.close();
     }   // orderNumber
+
     public class ConnectedOrderDetail extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... voids) {
             try {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder builder = new Request.Builder();
-                Request request = builder.url("http://192.168.43.169/sittichok/get/get_last_orderdetail.php").build();
+                Request request = builder.url("http://fourchokcodding.com/mos/android_get/get_last_orderdetail.php").build();
                 Response response = okHttpClient.newCall(request).execute();
                 return response.body().string();
             } catch (Exception e) {
@@ -198,6 +202,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 return null;
             }
         }   // doInback
+
         @Override
         protected void onPostExecute(String strJSON) {
             super.onPostExecute(strJSON);
@@ -212,86 +217,125 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             }
         }   // onPost
     }   // ConnectedOrderDetail
+
     private void findLastOrderNo() {
         ConnectedOrderDetail connectedOrderDetail = new ConnectedOrderDetail();
         connectedOrderDetail.execute();
     } // findLastOrderNo
+
     public void clickFinish(View view) {
-        int intBalane = Integer.parseInt(Balane);
-        if (totalAnInt > intBalane) {
-            MyAlertDialog objMyAlertDialog = new MyAlertDialog();
-            objMyAlertDialog.errorDialog(ConfirmOrderActivity.this, "ยอดเงินไม่เพียงพอ", "กรุณาเติมเงินก่อนครับ");
-        } else {
-            //Read All orderTABLE
-            SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME, // เปิดฐานข้อมูล
-                    MODE_PRIVATE, null);
-            Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_ORDER, null);  // เลือกOrder ที่ลูกค้าสั่งทั้งหมด
-            objCursor.moveToFirst();  // moveToFirst ให้เลือกตำแหน่ง ของข้อมูล Order อยู่บนสุด
-            for (int i =0; i<objCursor.getCount();i++) {    // นำOrder มานับแถว ถ้ามีข้อมูล ให้ทำ
-                strDate = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Date));  // รับค่า เวลา
-                String strBread = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Bread)); // รับค่าชื่อขนมปัง
-                String strPrice = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Price)); // รับค่าราคา
-                String strItem = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Item)); // รับค่าไอเทม
-                // Update to mySQL
+        try {
+            int intBalane = Integer.parseInt(Balane);
+            if (totalAnInt > intBalane) {
+                MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+                objMyAlertDialog.errorDialog(ConfirmOrderActivity.this, "ยอดเงินไม่เพียงพอ", "กรุณาเติมเงินก่อนครับ");
+            } else {
                 StrictMode.ThreadPolicy myPolicy = new StrictMode.ThreadPolicy
                         .Builder().permitAll().build();
                 StrictMode.setThreadPolicy(myPolicy);   // อนุญาตืให้ myPolicy เชื่อมต่อ โปรโตคอล ได้
 
+                //Read All orderTABLE
+                SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME, // เปิดฐานข้อมูล
+                        MODE_PRIVATE, null);
+                Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_ORDER, null);  // เลือกOrder ที่ลูกค้าสั่งทั้งหมด
+                objCursor.moveToFirst();  // moveToFirst ให้เลือกตำแหน่ง ของข้อมูล Order อยู่บนสุด
+                for (int i = 0; i < objCursor.getCount(); i++) {    // นำOrder มานับแถว ถ้ามีข้อมูล ให้ทำ
+                    strDate = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Date));  // รับค่า เวลา
+                    String strBread = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Bread)); // รับค่าชื่อขนมปัง
+                    String strItem = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Item)); // รับค่าไอเทม
+                    // Update to mySQL
+                    // Update to tborderdetail on Server
+                    //Log.d("12April", "clickFinish OrderNo ล่าสุดที่อ่าได้ ==> " + strOrderNo);
+
+                    String strProductAmount = findProductID(strBread);  // รหัส ขนมปัง แต่ เอาชื่อแทน
+                    intProductAmount = Integer.parseInt(strProductAmount);
+                    //Log.d("12April", strBread + " มี id = " + strProductID);
+                    intAmount = Integer.parseInt(strItem);
+
+
+                    if (intAmount > intProductAmount) {
+
+                        String ProductAmount = Integer.toString(intProductAmount);
+                        MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+                        objMyAlertDialog.errorDialog(ConfirmOrderActivity.this, "สั่ง " + strBread + " เกินจำนวน", "กรุณาลดจำนวนให้พอดี " + ProductAmount + " ชิ้น");
+                        objCursor.moveToNext();
+
+                    } else {
+
+                        sumorder += 1;
+
+                    }
+
+                }   // for
+                int getorder = objCursor.getCount();
+
                 //Update breadTABLE
-                updateBreadStock(strBread, strItem);
+                if (getorder == sumorder) {
+                    SQLiteDatabase objSqLiteDatabase2 = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME, // เปิดฐานข้อมูล
+                            MODE_PRIVATE, null);
+                    Cursor objCursor2 = objSqLiteDatabase2.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_ORDER, null);  // เลือกOrder ที่ลูกค้าสั่งทั้งหมด
+                    objCursor2.moveToFirst();  // moveToFirst ให้เลือกตำแหน่ง ของข้อมูล Order อยู่บนสุด
+                    for (int i = 0; i < objCursor2.getCount(); i++) {
+                        String strBread2 = objCursor2.getString(objCursor2.getColumnIndex(ManageTABLE.COLUMN_Bread)); // รับค่าชื่อขนมปัง
+                        String strPrice2 = objCursor2.getString(objCursor2.getColumnIndex(ManageTABLE.COLUMN_Price)); // รับค่าราคา
+                        String strItem2 = objCursor2.getString(objCursor2.getColumnIndex(ManageTABLE.COLUMN_Item)); // รับค่าไอเทม
 
-                // Update to tborderdetail on Server
-                //Log.d("12April", "clickFinish OrderNo ล่าสุดที่อ่าได้ ==> " + strOrderNo);
-                int intOrderNo = Integer.parseInt(strOrderNo)+ 1;
-                String strNextOrderNo = Integer.toString(intOrderNo);
-                orderDetailAnInt += 1;
-                //Log.d("12April", "OrderDetailID(" + (i + 1) +")" + orderDetailAnInt);
-                String strOrderDetail = Integer.toString(orderDetailAnInt);
-                String strProductID = findProductID(strBread);  // รหัส ขนมปัง แต่ เอาชื่อแทน
-                //Log.d("12April", strBread + " มี id = " + strProductID);
-                int intAmount = Integer.parseInt(strItem);
-                int intPrice = Integer.parseInt(strPrice);
-                int PriceTotal = intAmount * intPrice ;
-                String strPriceTotal = Integer.toString(PriceTotal);
-                //Log.d("12April", "Amount * Price = " + intAmount + "x" + intPrice + " = " + PriceTotal);
-                updateTotborderdetail(strNextOrderNo,
-                        strOrderDetail,
-                        strProductID,
-                        strItem,
-                        strPrice,
-                        strPriceTotal);
-                objCursor.moveToNext(); // ทำต่อ
-            }   // for
-            objCursor.close(); // คืนหน่วยความจำ
+                        int intOrderNo = Integer.parseInt(strOrderNo) + 1;
+                        String strNextOrderNo2 = Integer.toString(intOrderNo);
+                        orderDetailAnInt += 1;
+                        //Log.d("12April", "OrderDetailID(" + (i + 1) +")" + orderDetailAnInt);
+                        String strOrderDetail2 = Integer.toString(orderDetailAnInt);
 
-            // random barcode
+                        intAmount = Integer.parseInt(strItem2);
+                        int intPrice = Integer.parseInt(strPrice2);
+                        int PriceTotal = intAmount * intPrice;
+                        String strPriceTotal2 = Integer.toString(PriceTotal);
 
-            RandomBarcodeinDB();
+                        updateBreadStock(strBread2, strItem2);
+                        //Log.d("12April", "Amount * Price = " + intAmount + "x" + intPrice + " = " + PriceTotal);
+                        updateTotborderdetail(strNextOrderNo2,
+                                strOrderDetail2,
+                                strBread2,
+                                strItem2,
+                                strPrice2,
+                                strPriceTotal2);
+                        objCursor2.moveToNext(); // ทำต่อ
+                    }   // for
+                    objCursor2.close();
+                    // random barcode
+                    RandomBarcodeinDB();
+                    // Update tborder on Server
+                    updateTotborder(strDate,
+                            strIDuser,
+                            Integer.toString(totalAnInt),
+                            "จัดเตรียม", Barcode);
+                    int sumbalance = intBalane - totalAnInt;
+                    String strsumbalance = Integer.toString(sumbalance);
+                    updateMoneyuser(strIDuser, strsumbalance);
+                    // Intent HubActivity
+                    Intent objIntent = new Intent(ConfirmOrderActivity.this, Barcode.class);
+                    // ทำเสร็จแล้ว ให้ กลับไปหน้า HubActivity.class
+                    String strID = getIntent().getStringExtra("idUser");
+                    objIntent.putExtra("ID", strID); //แล้วส่งค่า ID คืนไปที่หน้า HubActivity.class ด้วย
+                    //Log.d("19Feb", "ID ที่ได้ ==> " + strID);
+                    objIntent.putExtra("IDbarcode", Barcode);
+                    startActivity(objIntent);
 
+                    //Delete OrderTABLE
+                    objSqLiteDatabase.delete(ManageTABLE.TABLE_ORDER, null, null);
+                    Toast.makeText(ConfirmOrderActivity.this, "สั่งซื้อสินค้าสำเร็จ", // โชว์ข้อความการยืนยัน 3.5 วินาที
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }   // if
 
-            // Update tborder on Server
-            updateTotborder(strDate,
-                    strIDuser,
-                    Integer.toString(totalAnInt),
-                    "จัดเตรียม",Barcode);
-            int sumbalance = intBalane - totalAnInt ;
-            String strsumbalance = Integer.toString(sumbalance);
-            updateMoneyuser(strIDuser,strsumbalance);
-            // Intent HubActivity
-            Intent objIntent = new Intent(ConfirmOrderActivity.this, Barcode.class);
-            // ทำเสร็จแล้ว ให้ กลับไปหน้า HubActivity.class
-            String strID = getIntent().getStringExtra("idUser");
-            objIntent.putExtra("ID", strID); //แล้วส่งค่า ID คืนไปที่หน้า HubActivity.class ด้วย
-            //Log.d("19Feb", "ID ที่ได้ ==> " + strID);
-            objIntent.putExtra("IDbarcode", Barcode);
-            startActivity(objIntent);
+                objCursor.close(); // คืนหน่วยความจำ
+            } // else ใหญ่สุด
 
-            //Delete OrderTABLE
-            objSqLiteDatabase.delete(ManageTABLE.TABLE_ORDER,null,null);
-            Toast.makeText(ConfirmOrderActivity.this,"สั่งซื้อสินค้าสำเร็จ", // โชว์ข้อความการยืนยัน 3.5 วินาที
-                    Toast.LENGTH_SHORT).show();
-            finish();
+        } catch (Exception e) {
+            Log.d("error", "สั่งสินค้าไม่ได้ " + e.toString());
         }
+
+
     }   // clickFinish
 
     private void updateBreadStock(String strBread, String strItem) {
@@ -343,11 +387,11 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
             ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             nameValuePairs.add(new BasicNameValuePair("isAdd", "true"));
-            nameValuePairs.add(new BasicNameValuePair("id",strID));
-            nameValuePairs.add(new BasicNameValuePair("Amount",strCurrentStock));
+            nameValuePairs.add(new BasicNameValuePair("id", strID));
+            nameValuePairs.add(new BasicNameValuePair("Amount", strCurrentStock));
 
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://192.168.43.169/sittichok/edit/edit_stock.php");
+            HttpPost httpPost = new HttpPost("http://fourchokcodding.com/mos/android_edit/edit_stock.php");
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             httpClient.execute(httpPost);
 
@@ -375,16 +419,14 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             }   // while
 
 
-
         } catch (Exception e) {
             e.toString();
         }
 
 
-
     }   // RandomBarcodeinDB
 
-    private void updateMoneyuser(String iduser ,String Balance ) {
+    private void updateMoneyuser(String iduser, String Balance) {
         OkHttpClient okHttpClient = new OkHttpClient();
         RequestBody requestBody = new FormEncodingBuilder()
                 .add("isAdd", "true")
@@ -392,7 +434,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .add("Balance", Balance)
                 .build();
         Request.Builder builder = new Request.Builder();
-        Request request = builder.url("http://192.168.43.169/sittichok/edit/edit_money.php")
+        Request request = builder.url("http://fourchokcodding.com/mos/android_edit/edit_money.php")
                 .post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -400,16 +442,18 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             public void onFailure(Request request, IOException e) {
                 Log.d("12April", "Fail to Upload");
             }
+
             @Override
             public void onResponse(Response response) throws IOException {
                 try {
-                    Log.d("12April", "Finish to update ==> "+ response.body().string());
+                    Log.d("12April", "Finish to update ==> " + response.body().string());
                 } catch (Exception e) {
-                    Log.d("12April", "Error upload ==> "+ e.toString());
+                    Log.d("12April", "Error upload ==> " + e.toString());
                 }
             }
         });
     }   // updateMoneyuser
+
     private void updateTotborderdetail(String strOrderNo,
                                        String strorderDetail_ID,
                                        String strProductID,
@@ -427,7 +471,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .add("PriceTotal", strpriceTotal)
                 .build();
         Request.Builder builder = new Request.Builder();
-        Request request = builder.url("http://192.168.43.169/sittichok/add/add_tborderdetail.php")
+        Request request = builder.url("http://fourchokcodding.com/mos/android_add/add_tborderdetail.php")
                 .post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -435,29 +479,32 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             public void onFailure(Request request, IOException e) {
                 Log.d("12April", "Fail to Upload");
             }
+
             @Override
             public void onResponse(Response response) throws IOException {
                 try {
-                    Log.d("12April", "Finish to update ==> "+ response.body().string());
+                    Log.d("12April", "Finish to update ==> " + response.body().string());
                 } catch (Exception e) {
-                    Log.d("12April", "Error upload ==> "+ e.toString());
+                    Log.d("12April", "Error upload ==> " + e.toString());
                 }
             }
         });
     }   // updateTotborderdetail
+
     private String findProductID(String strBread) {
-        String strProductID = null;
+        String strProductAmount = null;
         try {
             SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
-                    MODE_PRIVATE,null);
-            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_BREAD + " WHERE Bread = " + "'" + strBread + "'", null);
+                    MODE_PRIVATE, null);
+            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_BREAD + " WHERE Bread = " + "'" + strBread + "'", null);
             cursor.moveToFirst();
-            strProductID = cursor.getString(0);
-            return strProductID;
+            strProductAmount = cursor.getString(3);
+            return strProductAmount;
         } catch (Exception e) {
             return null;
         }
     }
+
     private void updateTotborder(String strDate,
                                  String strIDuser,
                                  String strSumtotal,
@@ -468,27 +515,29 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(threadPolicy);
         try {
             ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("isAdd","true"));
+            nameValuePairs.add(new BasicNameValuePair("isAdd", "true"));
             nameValuePairs.add(new BasicNameValuePair("OrderDate", strDate));
-            nameValuePairs.add(new BasicNameValuePair("CustomerID",strIDuser));
-            nameValuePairs.add(new BasicNameValuePair("GrandTotal",strSumtotal));
-            nameValuePairs.add(new BasicNameValuePair("Status",strStatus));
-            nameValuePairs.add(new BasicNameValuePair("Barcode",strBarcode));
+            nameValuePairs.add(new BasicNameValuePair("CustomerID", strIDuser));
+            nameValuePairs.add(new BasicNameValuePair("GrandTotal", strSumtotal));
+            nameValuePairs.add(new BasicNameValuePair("Status", strStatus));
+            nameValuePairs.add(new BasicNameValuePair("Barcode", strBarcode));
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://192.168.43.169/sittichok/add/add_tborder.php");
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,"UTF-8"));
+            HttpPost httpPost = new HttpPost("http://fourchokcodding.com/mos/android_add/add_tborder.php");
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             httpClient.execute(httpPost);
             Log.i("11April", "Update Finish");
         } catch (Exception e) {
             Log.i("11April", "ไม่สามารถอัพไปที่ tborder ได้ จาก " + e.toString());
         }
     }   // updateTotborder
+
     public void clickMore(View view) {
         Intent objIntent = new Intent(ConfirmOrderActivity.this, showMenuActivity.class);
         objIntent.putExtra("ID", strIDuser);
         startActivity(objIntent);
         finish(); // ปิดหน้าต่าง แสดงรายการลง แล้ว จะไป โชว์ ที่หน้า สั่งซื้อสินค้า
     } // clickMore
+
     private void showView() {
         // รับราคาที่สั่งทั้งหมด
         String strsum = Integer.toString(totalAnInt);
@@ -501,16 +550,17 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         String strBalce = objNumberFormat.format(balance);
         String strSumprice = objNumberFormat.format(intsum);
 
-        numberorderTextView.setText("เลขที่สั่งซื้อ : " + strOrderNumber );
+        numberorderTextView.setText("เลขที่สั่งซื้อ : " + strOrderNumber);
         dateTextView.setText("วันที่สั่งซื้อ : " + dateString); // นำค่า Date ใส่ไปใน dateTextView
         nameTextView.setText("ผู้สั่งซื้อ : " + nameString + " " + surnameString); // นำค่า ชื่อ กัย นามสกุล ใส่ไปใน nameTextView
         statusTextView.setText("ยอดเงินคงเหลือ : " + strBalce + " " + "บาท"); // นำค่า ที่อยู่  ใส่ไปใน addressTextView
         totalTextView.setText(strSumprice); // นำค่า ราคารวมทั้งหมด ใส่ไปใน totalTextView
     }   // showView
+
     private void readAllData() {
         SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null); // เปิดฐานข้อมูล Heyhey.db
-        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM "+ ManageTABLE.TABLE_ORDER, null); //ดึง Order ที่สั่งทั้งหมดจากฐานข้อมูล
+        Cursor objCursor = objSqLiteDatabase.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_ORDER, null); //ดึง Order ที่สั่งทั้งหมดจากฐานข้อมูล
         objCursor.moveToFirst();  // แล้วให้ไปอยู่ที่ Order แรก
         dateString = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Date)); // รับค่า เวลา
         nameString = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Name)); // รับค่า ชื่อ
@@ -520,12 +570,12 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         String[] itemStrings = new String[objCursor.getCount()]; // นับจำนวนของ จำนวนสินค้า
         String[] noStrings = new String[objCursor.getCount()]; // นับจำนวนของ ลำดับไอเทม
         String[] amountStrings = new String[objCursor.getCount()]; // นับจำนวน ราคารวม คือ item * price ได้ sum ผลรวม
-        for (int i=0; i<objCursor.getCount();i++) {
+        for (int i = 0; i < objCursor.getCount(); i++) {
             nameOrderStrings[i] = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Bread)); // รับค่าชื่อขนมปัง
             priceStrings[i] = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Price)); // รับค่าราคา
             itemStrings[i] = objCursor.getString(objCursor.getColumnIndex(ManageTABLE.COLUMN_Item)); // รับค่าจำนวน
             noStrings[i] = Integer.toString(i + 1); // +1 เพราะ ลำดับ เริ่มที่ 1 แล้ว บวก ไปเลื่อยๆ จนหมด เช่น 1 2 3 4
-            amountStrings[i] = Integer.toString( Integer.parseInt(itemStrings[i])* Integer.parseInt(priceStrings[i]) );
+            amountStrings[i] = Integer.toString(Integer.parseInt(itemStrings[i]) * Integer.parseInt(priceStrings[i]));
             // Sum ผลรวมของ item*price
             objCursor.moveToNext(); // เช่น ทำลำดับที่ 1 เสร็จ แล้ว ทำลำดับที่ 2 ต่อ Next จนกว่าจะหมด
             totalAnInt = totalAnInt + Integer.parseInt(amountStrings[i]);
@@ -551,6 +601,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             } // event
         });
     }   // readAllData
+
     private void myDeleteOrder(int position) {
         final SQLiteDatabase objSqLiteDatabase = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME,
                 MODE_PRIVATE, null);
@@ -564,7 +615,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         AlertDialog.Builder objBuilder = new AlertDialog.Builder(this);
         objBuilder.setIcon(R.drawable.icon_myaccount);
         objBuilder.setTitle("คุณแน่ใจใช่ไหม ? ");
-        objBuilder.setMessage("ที่จะลบรายการ " + strBread +" " +strItem + " " + "ชิ้น");
+        objBuilder.setMessage("ที่จะลบรายการ " + strBread + " " + strItem + " " + "ชิ้น");
         objBuilder.setCancelable(false);
         objBuilder.setPositiveButton("ตกลง", new DialogInterface.OnClickListener() {
             @Override
@@ -594,6 +645,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         objBuilder.show();
         objCursor.close();
     }   // myDeleteOrder
+
     private void bindWidget() {
         dateTextView = (TextView) findViewById(R.id.textView19);  // ตำแหน่ง เวลา
         nameTextView = (TextView) findViewById(R.id.textView20);  // ตำแหน่ง ชื่อ

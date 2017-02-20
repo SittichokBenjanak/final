@@ -86,7 +86,7 @@ public class showMenuActivity extends AppCompatActivity {
             try {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder builder = new Request.Builder();
-                Request request = builder.url("http://192.168.43.169/sittichok/get/get_bread.php").build();
+                Request request = builder.url("http://fourchokcodding.com/mos/android_get/get_bread.php").build();
                 Response response = okHttpClient.newCall(request).execute();
                 return response.body().string();
             } catch (Exception e) {
