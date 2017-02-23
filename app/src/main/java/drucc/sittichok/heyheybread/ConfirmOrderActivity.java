@@ -59,8 +59,9 @@ public class ConfirmOrderActivity extends AppCompatActivity {
     private String Balane;
     private String Barcode;
     private ManageTABLE objManageTABLE;
-    private int intAmount, intProductAmount, sumorder = 0;
-    ;
+    private int intAmount, intProductAmount;
+    private int resultefinis = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://fourchokcodding.com/mos/android_get/get_user.php";
+            String strURLuser = "http://192.168.1.113/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {
@@ -194,7 +195,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             try {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder builder = new Request.Builder();
-                Request request = builder.url("http://fourchokcodding.com/mos/android_get/get_last_orderdetail.php").build();
+                Request request = builder.url("http://192.168.1.113/sittichok/get/get_last_orderdetail.php").build();
                 Response response = okHttpClient.newCall(request).execute();
                 return response.body().string();
             } catch (Exception e) {
@@ -253,24 +254,20 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                     intAmount = Integer.parseInt(strItem);
 
 
-                    if (intAmount > intProductAmount) {
+                    while (intAmount > intProductAmount) {
 
                         String ProductAmount = Integer.toString(intProductAmount);
                         MyAlertDialog objMyAlertDialog = new MyAlertDialog();
                         objMyAlertDialog.errorDialog(ConfirmOrderActivity.this, "สั่ง " + strBread + " เกินจำนวน", "กรุณาลดจำนวนให้พอดี " + ProductAmount + " ชิ้น");
-                        objCursor.moveToNext();
 
-                    } else {
+                        resultefinis += 1;
+                    } 
 
-                        sumorder += 1;
-
-                    }
-
+                    objCursor.moveToNext();
                 }   // for
-                int getorder = objCursor.getCount();
 
                 //Update breadTABLE
-                if (getorder == sumorder) {
+                if (resultefinis == 0) {
                     SQLiteDatabase objSqLiteDatabase2 = openOrCreateDatabase(MyOpenHelper.DATABASE_NAME, // เปิดฐานข้อมูล
                             MODE_PRIVATE, null);
                     Cursor objCursor2 = objSqLiteDatabase2.rawQuery("SELECT * FROM " + ManageTABLE.TABLE_ORDER, null);  // เลือกOrder ที่ลูกค้าสั่งทั้งหมด
@@ -391,7 +388,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
             nameValuePairs.add(new BasicNameValuePair("Amount", strCurrentStock));
 
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://fourchokcodding.com/mos/android_edit/edit_stock.php");
+            HttpPost httpPost = new HttpPost("http://192.168.1.113/sittichok/edit/edit_stock.php");
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             httpClient.execute(httpPost);
 
@@ -434,7 +431,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .add("Balance", Balance)
                 .build();
         Request.Builder builder = new Request.Builder();
-        Request request = builder.url("http://fourchokcodding.com/mos/android_edit/edit_money.php")
+        Request request = builder.url("http://192.168.1.113/sittichok/edit/edit_money.php")
                 .post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -471,7 +468,7 @@ public class ConfirmOrderActivity extends AppCompatActivity {
                 .add("PriceTotal", strpriceTotal)
                 .build();
         Request.Builder builder = new Request.Builder();
-        Request request = builder.url("http://fourchokcodding.com/mos/android_add/add_tborderdetail.php")
+        Request request = builder.url("http://192.168.1.113/sittichok/add/add_tborderdetail.php")
                 .post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {

@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://fourchokcodding.com/mos/android_get/get_user.php";
+            String strURLuser = "http://192.168.1.113/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {

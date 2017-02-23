@@ -41,7 +41,7 @@ public class EditUser extends AppCompatActivity {
     private TextView userTextView;
     private String strID;
     private String passwordString,nameString,surnameString,addressString, phoneString;
-    private static final String urlSTRING = "http://fourchokcodding.com/mos/android_edit/edit_user.php";
+    private static final String urlSTRING = "http://192.168.1.113/sittichok/edit/edit_user.php";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +75,7 @@ public class EditUser extends AppCompatActivity {
         while (intTimes <= 1) {
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://fourchokcodding.com/mos/android_get/get_user.php";
+            String strURLuser = "http://192.168.1.113/sittichok/get/get_user.php";
             HttpPost objHttpPost = null;
             //1. Create InputStream
             try {

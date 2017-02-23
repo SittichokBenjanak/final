@@ -53,7 +53,7 @@ public class MenuAdapter extends BaseAdapter{
         //For Image
         ImageView iconImageView = (ImageView) objView1.findViewById(R.id.imageView7);
         Picasso.with(objContext)
-                .load("http://fourchokcodding.com/mos/news_image/" + iconStrings[i])
+                .load("http://192.168.1.113/sittichok/news_image/" + iconStrings[i])
                 .resize(120, 120)
                 .into(iconImageView);
 

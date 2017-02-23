@@ -135,7 +135,7 @@ public class RegisterActivity extends AppCompatActivity {
         StrictMode.ThreadPolicy myPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(myPolicy);
         try {
-            String strURL = "http://fourchokcodding.com/mos/android_add/add_user.php";
+            String strURL = "http://192.168.1.113/sittichok/add/add_user.php";
             ArrayList<NameValuePair> objNameValuePairs = new ArrayList<NameValuePair>();
             objNameValuePairs.add(new BasicNameValuePair("isAdd","true"));
             objNameValuePairs.add(new BasicNameValuePair(ManageTABLE.COLUMN_User,userString));
