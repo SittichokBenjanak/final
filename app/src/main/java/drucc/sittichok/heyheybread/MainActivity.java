@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         objSqLiteDatabase.delete(ManageTABLE.TABLE_BREAD, null, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER, null, null);
         objSqLiteDatabase.delete(ManageTABLE.TABLE_TBORDER_DETAIL, null, null);
-
+        objSqLiteDatabase.close();
 
     }   // deleteAllSQLite
 
